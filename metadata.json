@@ -1,0 +1,8 @@
+{
+  "name": "Chanduedits Portfolio",
+  "description": "A premium, cinematic, minimal single-page portfolio for Chanduedits, professional video editor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
