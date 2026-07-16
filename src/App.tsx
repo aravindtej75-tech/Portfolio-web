@@ -26,11 +26,12 @@ import {
   ShieldCheck,
   Lock,
   Terminal,
-  AlertTriangle
+  AlertTriangle,
+  Instagram
 } from 'lucide-react';
 
 // Use standard Vite asset URL pattern to safely load the generated portrait
-const editorPortrait = new URL('./assets/images/editor_portrait_1784141207039.jpg', import.meta.url).href;
+const editorPortrait = new URL('./assets/images/regenerated_image_1784211959611.png', import.meta.url).href;
 
 // 6 High-Quality, Cinematic, Monochrome stock video loops for projects
 const PROJECTS = [
@@ -121,7 +122,7 @@ const PROJECTS = [
 ];
 
 export default function App() {
-  const [introActive, setIntroActive] = useState(true);
+  const [introActive, setIntroActive] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const [showSectionDropdown, setShowSectionDropdown] = useState(false);
   const [selectedProject, setSelectedProject] = useState<typeof PROJECTS[0] | null>(null);
@@ -144,40 +145,15 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-
+ 
   const videoRef = useRef<HTMLVideoElement>(null);
   const introVideoRef = useRef<HTMLVideoElement>(null);
   const waveformCanvasRef = useRef<HTMLCanvasElement>(null);
-
+ 
   // Gated session storage checking on mount
   useEffect(() => {
-    const hasPlayed = sessionStorage.getItem('chanduedits_intro_played');
-    if (hasPlayed === 'true') {
-      console.log('Intro video: session storage has played flag. Skipping intro sequence.');
-      setIntroActive(false);
-    } else {
-      console.log('Intro video: starting new intro sequence session.');
-      
-      // Perform a HEAD request to check if /assets/video/web_intro.mp4 exists on the server.
-      const checkVideoExists = async () => {
-        try {
-          console.log('Intro video: Checking if local "/assets/video/web_intro.mp4" exists on the server...');
-          const response = await fetch('/assets/video/web_intro.mp4', { method: 'HEAD' });
-          const contentType = response.headers.get('content-type') || '';
-          if (response.ok && !contentType.toLowerCase().includes('text/html')) {
-            console.log('Intro video: video file found/loaded');
-            setIntroVideoSrc('/assets/video/web_intro.mp4');
-          } else {
-            console.log('Intro video: Local "/assets/video/web_intro.mp4" not found or is SPA HTML redirect (Status:', response.status, 'Content-Type:', contentType, '). Using fallback.');
-            setIntroVideoSrc('https://www.w3schools.com/html/mov_bbb.mp4');
-          }
-        } catch (err) {
-          console.warn('Intro video: Failed to query local video file. Using fallback.');
-          setIntroVideoSrc('https://www.w3schools.com/html/mov_bbb.mp4');
-        }
-      };
-      checkVideoExists();
-    }
+    // Intro section deactivated. Direct load of main portfolio page.
+    setIntroActive(false);
   }, []);
 
   // Premium Client-Side Security Shield Hook
@@ -466,147 +442,14 @@ export default function App() {
       {/* Background Film Grain Overlay */}
       <div className="film-grain" id="grain" />
 
-      <AnimatePresence>
-        {/* 1. INTRO SEQUENCE */}
-        {introActive ? (
-          <motion.div
-            key="intro-screen"
-            initial={{ opacity: 1, scale: 1 }}
-            exit={{ 
-              opacity: 0,
-              scale: 0.95,
-              transition: { duration: 0.7, ease: "easeInOut" }
-            }}
-            className="fixed inset-0 z-50 flex flex-col justify-between bg-black overflow-hidden"
-            id="intro-container"
-          >
-            {/* Full-bleed muted auto-playing video */}
-            <div className="absolute inset-0 w-full h-full">
-              {introVideoSrc && (
-                <video
-                  ref={introVideoRef}
-                  autoPlay
-                  muted
-                  playsInline
-                  preload="auto"
-                  onLoadedMetadata={() => console.log('Intro video: onLoadedMetadata event fired (metadata fetched).')}
-                  onLoadedData={() => console.log('Intro video: video file found/loaded')}
-                  onPlay={() => console.log('Intro video: playback started')}
-                  onEnded={() => {
-                    handleSkipIntro(false);
-                  }}
-                  onError={handleIntroVideoError}
-                  className="w-full h-full object-cover opacity-80"
-                  id="intro-video"
-                >
-                  <source src={introVideoSrc} type="video/mp4" />
-                </video>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-60" />
-            </div>
-
-            {/* Centered Play Button Overlay if Autoplay is Blocked */}
-            {autoplayBlocked && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md"
-                id="autoplay-blocked-overlay"
-              >
-                <div className="max-w-md p-8 text-center space-y-6">
-                  <div className="w-2 h-2 rounded-full bg-white mx-auto animate-ping" />
-                  <span className="font-mono text-xs text-neutral-500 uppercase tracking-widest block">// ACTION REQUIRED</span>
-                  <p className="font-display text-sm text-neutral-300 tracking-wider">
-                    BROWSER PREVENTED AUTOMATIC PLAYBACK
-                  </p>
-                  <button
-                    onClick={() => {
-                      console.log('Intro video: Centered play button clicked manually.');
-                      if (introVideoRef.current) {
-                        introVideoRef.current.play()
-                          .then(() => {
-                            console.log('Intro video: playback started');
-                            setAutoplayBlocked(false);
-                          })
-                          .catch(err => {
-                            const errorMsg = err ? (err.message || String(err)) : 'Manual play blocked';
-                            console.error('Intro video: Manual play attempt failed:', errorMsg);
-                          });
-                      }
-                    }}
-                    className="inline-flex items-center gap-3 bg-[#f5f5f5] text-black hover:bg-white px-8 py-4 rounded-full font-display text-xs font-semibold tracking-widest uppercase transition-all duration-300 shadow-[0_0_20px_rgba(245,245,245,0.15)] hover:shadow-[0_0_35px_rgba(245,245,245,0.3)] hover:scale-[1.03] cursor-pointer"
-                    id="manual-play-intro-btn"
-                  >
-                    <Play size={12} className="fill-black text-black ml-0.5" />
-                    <span>PLAY INTRO REEL</span>
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Header / Brand Overlay */}
-            <div className="relative z-10 p-8 md:p-16 flex justify-between items-start w-full">
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 1 }}
-                className="flex items-center gap-3"
-              >
-                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                <span className="font-display font-medium tracking-widest text-xs uppercase text-neutral-400">CHANDUEDITS / STUDIO REEL</span>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                transition={{ delay: 1, duration: 1 }}
-                className="text-xs font-mono text-neutral-500"
-              >
-                STATION_00 // EST. 2026
-              </motion.div>
-            </div>
-
-            {/* Core focus / status */}
-            <div className="relative z-10 flex flex-col items-center justify-center text-center p-6">
-              <motion.p
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: [0, 0.8, 0.4, 0.8, 0], scale: 1 }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                className="font-display text-sm tracking-[0.3em] uppercase text-neutral-300 pointer-events-none"
-              >
-                Cinematic Sequence Playing
-              </motion.p>
-            </div>
-
-            {/* Bottom Controls / Skip Trigger */}
-            <div className="relative z-10 p-8 md:p-16 flex justify-between items-end w-full">
-              <div className="text-left font-mono text-[10px] text-neutral-500 leading-relaxed max-w-xs hidden sm:block">
-                TAP TO BYPASS INTRO REEL. THE SITE REVEALS CHANDU'S LATEST POST-PRODUCTION ARCHIVE, INTERACTIVE LIGHTBOX, AND CREATIVE TIMELINE.
-              </div>
-              
-              <motion.button
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 0.7, y: 0 }}
-                whileHover={{ opacity: 1, x: 5 }}
-                transition={{ delay: 0.8, duration: 0.8 }}
-                onClick={() => handleSkipIntro(true)}
-                className="flex items-center gap-2 font-display text-xs tracking-widest uppercase text-white cursor-pointer group py-2"
-                id="skip-intro-btn"
-              >
-                <span>SKIP INTRO</span>
-                <span className="text-[10px] opacity-60 group-hover:translate-x-1 transition-transform">→</span>
-              </motion.button>
-            </div>
-          </motion.div>
-        ) : (
-          /* MAIN SITE PORTFOLIO CONTAINER */
-          <motion.div
-            key="main-portfolio"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="flex flex-col min-h-screen"
-          >
+      {/* MAIN SITE PORTFOLIO CONTAINER */}
+      <motion.div
+        key="main-portfolio"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
+        className="flex flex-col min-h-screen"
+      >
             {/* Elegant Fixed Header */}
             <header className="fixed top-0 left-0 w-full z-40 bg-[#0a0a0a]/85 backdrop-blur-md border-b border-neutral-900/80 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
               <a href="#hero" className="font-display font-bold text-sm tracking-[0.4em] text-white hover:text-neutral-300 transition-all duration-500 ease-out flex items-center gap-2 uppercase relative group" id="header-logo">
@@ -847,10 +690,18 @@ export default function App() {
                       id="about-portrait"
                     />
 
-                    {/* Technical marker overlay */}
-                    <div className="absolute bottom-4 left-4 z-20 font-mono text-[9px] text-neutral-400 bg-black/60 px-2 py-1 rounded tracking-widest uppercase">
-                      SYS_CHANDU_001
-                    </div>
+                    {/* Instagram Profile Overlay Link */}
+                    <a
+                      href="https://www.instagram.com/chandu___103/?__pwa=1#"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => triggerSecureLinkGate("https://www.instagram.com/chandu___103/?__pwa=1#", e)}
+                      className="absolute bottom-4 left-4 z-20 flex items-center gap-1.5 font-mono text-[10px] text-white bg-black/75 hover:bg-white hover:text-black hover:scale-105 border border-neutral-800 hover:border-white px-2.5 py-1.5 rounded tracking-wider transition-all duration-300 shadow-lg group/insta cursor-pointer"
+                      id="instagram-overlay-link"
+                    >
+                      <Instagram size={12} className="transition-transform group-hover/insta:rotate-12" />
+                      <span>@chandu___103</span>
+                    </a>
                   </div>
 
                   {/* Background ambient lighting element */}
@@ -1079,8 +930,6 @@ export default function App() {
               </div>
             </section>
           </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* 6. INTERACTIVE EDITING WORKSPACE LIGHTBOX (MODAL) */}
       <AnimatePresence>
